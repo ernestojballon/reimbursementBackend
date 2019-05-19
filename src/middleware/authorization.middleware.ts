@@ -12,7 +12,8 @@ export function authorizationMiddleware(authRoles:string[]){
         if(isAuth){
             next()
         } else {
-            res.sendStatus(403)
+            res.status(401)
+            res.json({ message:'User not authorized to this end point'})
         }
 
     }

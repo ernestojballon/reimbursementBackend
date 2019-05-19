@@ -3,6 +3,10 @@ import { authRouter } from "./routers/authRouter";
 import bodyParser = require("body-parser");
 import { authenticateMiddleware } from "./middleware/authentication.middleware";
 import { authorizationMiddleware } from "./middleware/authorization.middleware";
+import { userRouter } from "./routers/userRouter";
+import { reimbursementRouter } from "./routers/reimbursementRouter";
+
+export const jwtkey  = process.env['SUPER_SECRET_CODE']
 
 
 const app = express();
@@ -15,20 +19,18 @@ app.post('/api/login',authRouter)
 //retrict the access to any route of our domain if you are not authenticated
 app.use('',authenticateMiddleware)
 
-// Example of Authorizacion for manager an employee 
-    // app.get('/api/protected',[authorizationMiddleware(['manager']),(req,res)=>{
-    //     res.json({
-    //         text: 'this is gonna be protected url a manager can acces to this one'
-    //     });
-    // }]);
-    // app.get('/api/employee',[authorizationMiddleware(['employee']),(req,res)=>{
-    //     res.json({
-    //         text: 'this is gonna be protected url a employee can acces to this one'
-    //     });
-    // }]);
-////////////////////////////////////////////////////////////////
+//redirect to usersRouter
+app.use('/api/users',userRouter);
 
+//redirect to reimburstmentRouter
+app.use('/api/reimbursement',reimbursementRouter);
 
+app.use('/',(req,res)=>{
+    res.status(501)
+    res.json({
+        message:'This url was not implemented in this API'
+    })
+})
 
 
 app.listen(9050, ()=>{

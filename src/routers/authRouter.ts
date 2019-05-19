@@ -1,27 +1,29 @@
 import * as express from 'express'
-import { users } from '../state';
-
-
+import { User } from '../models/user';
+import { findUserByUsernameAndPasswordService } from '../services/user.service';
+import {jwtkey} from '../config'
 
 export const authRouter = express.Router();
 
 const jwt = require('jsonwebtoken');
 
-authRouter.use('',(req,res)=>{
-    
-     //compare password an username from front end TODO has password  
-    const {username, password} = req.body;
-    const user = users.find(u => u.username === username && u.password === password)
-
-
-    // sign jwt with userid and rol to manage authorization in future requests
-    if(user){
-        const token = jwt.sign({ userId:user.id,userRole:user.role }, 'secret_key',{ expiresIn: '1h' });
+authRouter.use('',async (req,res)=>{
+    try{
+    //compare password an username from front end TODO has password  
+        const {username, password} = req.body;
+        const user:User = await findUserByUsernameAndPasswordService(username, password);
+        const token = jwt.sign({ userId:user.id,userRole:user.role.role }, jwtkey,{ expiresIn: '1h' });
         res.status(200);
         res.json({
-            token:token
-        })
-    }else{
-        res.sendStatus(401)
+            token:token,
+            user:user
+        });
+       
+    }catch(err){
+        let message = err.message || `We can't let you in`
+        res.status(401).send({
+            message: err.message
+        });
     }
+    
 })
