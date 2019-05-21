@@ -176,3 +176,41 @@ export async function findReimbursementViewByUser(userId:number){
         client && client.release()
     }
 }
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// Count all the reimbursement in the table
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+export async function countAllReimbursements():Promise<number>{
+    
+    let client:PoolClient;
+    try{
+        client = await connectionPool.connect();
+        let query = 'select count(reimbursement_id) from reimbursements_view'
+        let result= await client.query(query)
+        console.log("this is the result fromn the query::",result.rows[0].count)
+        return result.rows[0].count;
+    }catch(err){
+        //console.log(errr.message)
+        throw new ReimbusementError(500, 'Internal error: Reimbursement count failed');
+    } finally{
+        client && client.release()
+    }
+}
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// Find Reimbursement page with page seze and start point
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+export async function findReimburstmentByPage(pageSize,start){
+    //TO DO:: Finish query ,basically all this method
+    let client:PoolClient;
+    try{
+        client = await connectionPool.connect();
+        let query = 'select * from reimbursements_view order by reimbursement_id limit $1 offset $2'
+        let result= await client.query(query,[pageSize,start])
+        console.log(query,pageSize,start)
+        return result.rows;
+    }catch(err){
+        //console.log(errr.message)
+        throw new ReimbusementError(500, 'Internal error: Reimbursement pagination failed');
+    } finally{
+        client && client.release()
+    }
+}

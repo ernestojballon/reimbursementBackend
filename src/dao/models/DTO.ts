@@ -6,6 +6,7 @@ export interface dtoRole{
     user_id: number; // primary key
     username: string;// not null, unique
     firstname: string; // not null
+    password?: string;
     lastname: string; // not null
     email: string ;// not null
     role_id: number ;// not null

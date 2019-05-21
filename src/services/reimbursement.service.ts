@@ -1,5 +1,5 @@
 
-import { findReimbursementView, findReimbursementViewByStatus, findReimbursementViewByUser, createReimbursement, updateReimbursement } from '../dao/reimbursement.dao';
+import { findReimbursementView, findReimbursementViewByStatus, findReimbursementViewByUser, createReimbursement, updateReimbursement, countAllReimbursements, findReimburstmentByPage } from '../dao/reimbursement.dao';
 import { dtoReimbursement } from '../dao/models/DTO';
 
 
@@ -34,4 +34,12 @@ export async function createReimbursementService(reimburstmentDto:dtoReimburseme
 //::::::::::::::::::::::::::::::::::::::::::::::::::
 export async function updateReimbursementService(reimburstmentDto:dtoReimbursement){
     return  await updateReimbursement(reimburstmentDto);
+}
+
+export async function countAllReimbursementsService():Promise<number>{
+    return  await countAllReimbursements();
+}
+
+export async function findReimburstmentByPageService(pageSize:number,start:number){
+    return  await findReimburstmentByPage(pageSize,start);
 }

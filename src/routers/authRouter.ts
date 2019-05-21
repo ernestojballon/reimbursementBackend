@@ -1,7 +1,8 @@
 import * as express from 'express'
 import { User } from '../models/user';
 import { findUserByUsernameAndPasswordService } from '../services/user.service';
-import {jwtkey} from '../config'
+import {jwtkey} from '../index'
+
 
 export const authRouter = express.Router();
 
@@ -21,7 +22,7 @@ authRouter.use('',async (req,res)=>{
        
     }catch(err){
         let message = err.message || `We can't let you in`
-        res.status(401).send({
+        res.status(err.statusCode || 401).send({
             message: err.message
         });
     }

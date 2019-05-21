@@ -5,11 +5,14 @@ import {
   findReimbursementViewByStatusService,
   findReimbursementViewByUserService,
   createReimbursementService,
-  updateReimbursementService
+  updateReimbursementService,
+  countAllReimbursementsService
 } from "../services/reimbursement.service";
 import { asyncHandler } from "../util/asyncHandler";
 import { dtoReimbursement } from "../dao/models/DTO";
 import ReimbusementError from "../util/ReimbursementError";
+import { findReimburstmentByPage } from "../dao/reimbursement.dao";
+import { serverNode } from "../config";
 
 //Base path::   /reimburstment   from   index.ts
 
@@ -56,8 +59,7 @@ reimbursementRouter.get("/author/userId/:userId", [
     if (id && typeof id === "number") {
       let reimbursements = await findReimbursementViewByUserService(id);
       if (typeof reimbursements[0] === "undefined") {
-          
-        throw new ReimbusementError(204,"There is no reimbursements for that user");
+        throw new ReimbusementError(204,"This message it's not showing because 206 code  no content XD ");
       }
       res.status(200);
       res.json(reimbursements);
@@ -78,8 +80,7 @@ reimbursementRouter.get("/author/userId/:userId", [
 // Status Code 201 CREATED
 //   Reimbursement
 
-reimbursementRouter.post("/", [
-  authorizationMiddleware(["admin", "employee"]),
+reimbursementRouter.post("/", [authorizationMiddleware(["admin", "employee"]),
   asyncHandler(async (req, res) => {
     const reimDto: dtoReimbursement = {
       author: req.body.author_id, // foreign key -> User, not null
@@ -135,5 +136,58 @@ reimbursementRouter.patch("/", [
     const reimbursement = await updateReimbursementService(reimDto);
     res.status(200);
     res.json(reimbursement);
+  })
+]);
+//set this middleware in route if you have more than one pagination in our api
+
+reimbursementRouter.use(function(req, res, next) {
+  // set default or minimum is 10 (as it was prior to v0.2.0)
+  if (req.query.limit >= 10) req.query.limit = 10;
+  next();
+});
+
+// pagination for my reimbursement get all 
+reimbursementRouter.get("/page", [
+  authorizationMiddleware(["admin", "manager"]),
+  asyncHandler(async (req, res) => {
+    //Todo: middleware to prevent pageSize bigger than 10 
+    let pageSize = +req.query.limit || 3;//pageSize 3 default change this after middleware is set up
+    let totalRecords:number = await countAllReimbursementsService();
+    
+    let pageCount = Math.ceil(totalRecords/pageSize);
+    console.log("page count::", totalRecords/pageSize)
+    console.log("total records are ::", totalRecords)
+    
+    console.log("page size::", pageSize)
+    
+    let current = 1;
+    
+    if(req.query.page){ current = Math.abs(req.query.page) }
+    if (!current || !pageCount || current > pageCount){ throw new ReimbusementError(400,"Database do not have that many records in the database")}
+    
+    let start = (current -1) * pageSize;
+    let response = await findReimburstmentByPage(pageSize,start);
+    let before = [];
+    let after = [];  
+    for (let x=1;x<pageCount+1;x++){
+      if(x>current){
+        after.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
+      }
+      if(x<current){
+        before.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
+      }
+    }
+
+    let page = {
+      result:response,
+      before: before,
+      after:  after
+    } 
+    
+    // page.response = {}
+    // page.response = response
+    // page.links = ['<http://localhost/>', '<http://localhost:3000/>'];
+    res.status(200);
+    res.json(page);
   })
 ]);
