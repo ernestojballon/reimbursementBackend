@@ -5,7 +5,7 @@ import { dtoReimbursement } from '../dao/models/DTO';
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::
-// Find all reimburstments view  by status service
+// Find all reimburstments view  service
 //::::::::::::::::::::::::::::::::::::::::::::::::::
 
 export async function findReimbursementViewService(){

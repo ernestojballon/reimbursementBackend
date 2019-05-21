@@ -5,14 +5,18 @@ import { authenticateMiddleware } from "./middleware/authentication.middleware";
 import { authorizationMiddleware } from "./middleware/authorization.middleware";
 import { userRouter } from "./routers/userRouter";
 import { reimbursementRouter } from "./routers/reimbursementRouter";
-
+import * as fileUpload from "express-fileupload"
 export const jwtkey  = process.env['SUPER_SECRET_CODE']
 
 
 const app = express();
 
-app.use(bodyParser.json())
 
+
+app.use(fileUpload());
+
+
+app.use(bodyParser.json())
 // login router gives the token with userId and userRol inside validated for 1 hour
 app.post('/api/login',authRouter)
 

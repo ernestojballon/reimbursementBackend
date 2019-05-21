@@ -1,8 +1,7 @@
 import * as express from 'express'
 import { User } from '../models/user';
 import { findUserByUsernameAndPasswordService } from '../services/user.service';
-import {jwtkey} from '../index'
-
+import {jwtkey} from '../index';
 
 export const authRouter = express.Router();
 

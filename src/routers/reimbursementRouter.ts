@@ -13,7 +13,7 @@ import { dtoReimbursement } from "../dao/models/DTO";
 import ReimbusementError from "../util/ReimbursementError";
 import { findReimburstmentByPage } from "../dao/reimbursement.dao";
 import { serverNode } from "../config";
-
+import * as fs from 'fs'
 //Base path::   /reimburstment   from   index.ts
 
 export const reimbursementRouter = express.Router();
@@ -153,18 +153,10 @@ reimbursementRouter.get("/page", [
     //Todo: middleware to prevent pageSize bigger than 10 
     let pageSize = +req.query.limit || 3;//pageSize 3 default change this after middleware is set up
     let totalRecords:number = await countAllReimbursementsService();
-    
     let pageCount = Math.ceil(totalRecords/pageSize);
-    console.log("page count::", totalRecords/pageSize)
-    console.log("total records are ::", totalRecords)
-    
-    console.log("page size::", pageSize)
-    
     let current = 1;
-    
     if(req.query.page){ current = Math.abs(req.query.page) }
     if (!current || !pageCount || current > pageCount){ throw new ReimbusementError(400,"Database do not have that many records in the database")}
-    
     let start = (current -1) * pageSize;
     let response = await findReimburstmentByPage(pageSize,start);
     let before = [];
@@ -177,17 +169,43 @@ reimbursementRouter.get("/page", [
         before.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
       }
     }
-
     let page = {
       result:response,
       before: before,
       after:  after
     } 
-    
-    // page.response = {}
-    // page.response = response
-    // page.links = ['<http://localhost/>', '<http://localhost:3000/>'];
     res.status(200);
     res.json(page);
+  })
+]);
+// pagination for my reimbursement get all 
+reimbursementRouter.post("/upload/:id", [
+  authorizationMiddleware(["admin", "manager","employee"]),
+  asyncHandler(async (req, res) => {
+    let sampleFile;
+    let uploadPath;
+
+    if (Object.keys(req.files).length == 0) {
+      res.status(400).send('No files were uploaded.');
+      return;
+    }
+    console.log('req.files >>>', req.files); // eslint-disable-line
+    sampleFile = req.files.sampleFile;
+    sampleFile.name = Date.now().toString().split(" ").join("") + sampleFile.name.slice(-4);
+    uploadPath =__dirname + '/../uploads/temp/'+ sampleFile.name
+
+    try {await sampleFile.mv(uploadPath)}catch(err){throw new ReimbusementError(500,'Error uploading the file')}
+    //TO DO : find reimbursement by id ,store url in photos table, and fk to a reimbursements
+    //let response = await findReimburstmentById(pageSize,start);
+
+    var oldPath = __dirname + '/../uploads/temp/'+ sampleFile.name
+    var newPath = __dirname + '/../uploads/'+ sampleFile.name
+
+    fs.rename(oldPath, newPath, function (err) {
+      if (err) throw err
+      console.log('Successfully renamed - AKA moved!')
+    })
+    
+    res.send('File uploaded to ' + uploadPath);
   })
 ]);
