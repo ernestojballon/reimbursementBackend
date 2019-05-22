@@ -11,22 +11,22 @@ import {
 import { asyncHandler } from "../util/asyncHandler";
 import { dtoReimbursement } from "../dao/models/DTO";
 import ReimbusementError from "../util/ReimbursementError";
-import { findReimburstmentByPage } from "../dao/reimbursement.dao";
+import { findReimburstmentByPage, findReimbursementById } from "../dao/reimbursement.dao";
 import { serverNode } from "../config";
 import * as fs from 'fs'
+import { insertPhotoService } from "../services/photo.service";
 //Base path::   /reimburstment   from   index.ts
 
 export const reimbursementRouter = express.Router();
 
-// Find Reimbursements By Status
-// Reimbursements should be ordered by date
-// URL /reimbursements/status/:statusId
-//      For a challenge you could do this instead:
-//      /reimbursements/status/:statudId/date-submitted?start=:startDate&end=:endDate
-// Method: GET
-// Allowed Roles finance-manager
-// Response:Reimbursement
 
+// Find Reimbursements By Status
+// GET
+// Url: http://127.0.0.1:9050/api/reimbursement/status/[status id]
+//
+//              HEADER
+// authorization         Beared [token]
+//
 reimbursementRouter.get("/status/:statusId", [
   authorizationMiddleware(["admin", "manager"]),
   asyncHandler(async (req, res) => {
@@ -40,14 +40,14 @@ reimbursementRouter.get("/status/:statusId", [
   })
 ]);
 
+
 // Find Reimbursements By User
-// Reimbursements should be ordered by date
-// URL /reimbursements/author/userId/:userId
-//      For a challenge you could do this instead:
-//      /reimbursements/author/userId/:userId/date-submitted?start=:startDate&end=:endDate
-// Method: GET
-// Allowed Roles finance-manager or if ther userId is the user making the request.
-// Response:Reimbursement
+// GET
+// Url: http://127.0.0.1:9050/api/reimbursement/author/userId/[user id]
+//
+//              HEADER
+// authorization         Beared [token]
+//
 
 reimbursementRouter.get("/author/userId/:userId", [
   authorizationMiddleware(["admin", "manager", "employee"]),
@@ -72,21 +72,26 @@ reimbursementRouter.get("/author/userId/:userId", [
 ]);
 
 // Submit Reimbursement
-// URL /reimbursements
-// Method: POST
-// Request: The reimbursementId should be 0
-// Reimbursement
-// Response:
-// Status Code 201 CREATED
-//   Reimbursement
-
-reimbursementRouter.post("/", [authorizationMiddleware(["admin", "employee"]),
+// POST
+// Url: http://127.0.0.1:9050/api/reimbursement/
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           Body
+// {
+//   "author_id": 3,
+//   "amount": 10,
+//   "description": "food is to expensive",
+//   "type_id": 3
+// }
+reimbursementRouter.post("/", [authorizationMiddleware(["admin","manager", "employee"]),
   asyncHandler(async (req, res) => {
     const reimDto: dtoReimbursement = {
-      author: req.body.author_id, // foreign key -> User, not null
-      amount: req.body.amount, // not null
-      description: req.body.description, // not null
-      reim_type_id: req.body.type_id // foreign key -> ReimbursementType
+      author: req.userId, 
+      amount: req.body.amount, 
+      description: req.body.description, 
+      reim_type_id: req.body.type_id 
     };
     if (
       !reimDto.author &&
@@ -103,16 +108,26 @@ reimbursementRouter.post("/", [authorizationMiddleware(["admin", "employee"]),
   })
 ]);
 
-// Update Reimbursment
-// URL /:reinbursment
-// Method: PATCH
-// Allowed Roles finance-manager
-// Request The reimbursementId must be presen as well as all fields
-//       to update, any field left undefined will not be updated.
-//          This can be used to approve and deny.
-//   Reimbursement
-// Response:Reimbursement
 
+// Update Reimbursment
+// PATCH
+// Url: http://127.0.0.1:9050/api/reimbursement/
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           Body
+// {
+//   "reimbursement_id": 20,
+//   "author_id": 3,
+//   "amount": "1050",
+//   "submitted_date": "2019-08-17",
+//   "resolve_date": "2019-08-17T04:00:00.000Z",
+//   "description": "money because i am a good worker",
+//   "resolver_id": 3,
+//   "status_id": 2,
+//   "type_id": 2
+// }
 reimbursementRouter.patch("/", [
   authorizationMiddleware(["admin", "manager"]),
   asyncHandler(async (req, res) => {
@@ -123,7 +138,7 @@ reimbursementRouter.patch("/", [
       submitted_date: req.body.submitted_date, // not null
       resolve_date: req.body.resolve_date, // not null
       description: req.body.description,
-      resolver: req.body.resolver_id, // foreign key -> User
+      resolver: req.userId , // foreign key -> User
       status_id: req.body.status_id, // not null
       reim_type_id: req.body.type_id // foreign key -> ReimbursementType
     };
@@ -138,19 +153,32 @@ reimbursementRouter.patch("/", [
     res.json(reimbursement);
   })
 ]);
-//set this middleware in route if you have more than one pagination in our api
 
+
+
+
+
+// Pagination for my reimbursement get all 
+//GET
+// Url: http://127.0.0.1:9050/api/reimbursement/page?page=[page]&limit=[limit]
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           PARAMS
+//Key               Value:
+//page              [integer]
+//limit             [integer]
+
+//set this middleware in route if you have more than one pagination end point in our api
 reimbursementRouter.use(function(req, res, next) {
-  // set default or minimum is 10 (as it was prior to v0.2.0)
+  // set default  10 
   if (req.query.limit >= 10) req.query.limit = 10;
   next();
 });
-
-// pagination for my reimbursement get all 
 reimbursementRouter.get("/page", [
   authorizationMiddleware(["admin", "manager"]),
   asyncHandler(async (req, res) => {
-    //Todo: middleware to prevent pageSize bigger than 10 
     let pageSize = +req.query.limit || 3;//pageSize 3 default change this after middleware is set up
     let totalRecords:number = await countAllReimbursementsService();
     let pageCount = Math.ceil(totalRecords/pageSize);
@@ -178,34 +206,52 @@ reimbursementRouter.get("/page", [
     res.json(page);
   })
 ]);
-// pagination for my reimbursement get all 
-reimbursementRouter.post("/upload/:id", [
+
+//imagen upload
+//POST
+// Url:  http://127.0.0.1:9050/api/reimbursement/upload/[reimbursement ID] 
+// Upload images for a reimbursment 
+// photos are saved in uploads
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           BODY:form-data
+//Key:type file            Value:
+//myreceipt               [image path in your computer]
+//
+
+reimbursementRouter.post("/upload/:reimId", [
   authorizationMiddleware(["admin", "manager","employee"]),
   asyncHandler(async (req, res) => {
-    let sampleFile;
+    let myReceiptFile;
     let uploadPath;
+
 
     if (Object.keys(req.files).length == 0) {
       res.status(400).send('No files were uploaded.');
       return;
     }
-    console.log('req.files >>>', req.files); // eslint-disable-line
-    sampleFile = req.files.sampleFile;
-    sampleFile.name = Date.now().toString().split(" ").join("") + sampleFile.name.slice(-4);
-    uploadPath =__dirname + '/../uploads/temp/'+ sampleFile.name
+    myReceiptFile = req.files.myreceipt;
+    myReceiptFile.name = Date.now().toString().split(" ").join("") + myReceiptFile.name.slice(-4);
+    uploadPath =__dirname + '/../uploads/temp/'+ myReceiptFile.name
 
-    try {await sampleFile.mv(uploadPath)}catch(err){throw new ReimbusementError(500,'Error uploading the file')}
-    //TO DO : find reimbursement by id ,store url in photos table, and fk to a reimbursements
-    //let response = await findReimburstmentById(pageSize,start);
-
-    var oldPath = __dirname + '/../uploads/temp/'+ sampleFile.name
-    var newPath = __dirname + '/../uploads/'+ sampleFile.name
-
-    fs.rename(oldPath, newPath, function (err) {
-      if (err) throw err
-      console.log('Successfully renamed - AKA moved!')
-    })
+    try {await myReceiptFile.mv(uploadPath)}catch(err){throw new ReimbusementError(500,'Error uploading the file')}
     
-    res.send('File uploaded to ' + uploadPath);
+    let reimId = req.params.reimId;
+    let relativePath = '/../uploads/'+ myReceiptFile.name;
+    let newPath = __dirname + relativePath;
+    try{await insertPhotoService(relativePath,reimId);}catch(err){
+      fs.unlinkSync(uploadPath);
+      throw err;
+    }
+    fs.rename(uploadPath, newPath, function (err) {
+      if (err) throw err
+      //console.log('Successfully renamed - AKA moved!')
+    })
+    res.status(201);
+    res.send({
+      message:'photo saved'
+    });
   })
 ]);

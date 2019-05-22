@@ -30,3 +30,8 @@ export interface dtoRole{
     status_id?: number; // foreign ey -> ReimbursementStatus, not null
     reim_type_id: number ; // foreign key -> ReimbursementType
   }
+  export interface dtoPhoto {
+    photo_id: number; // primary key
+    url: string ;
+    reimbursement_id: number;
+  }

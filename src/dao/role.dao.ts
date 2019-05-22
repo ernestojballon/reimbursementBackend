@@ -18,7 +18,7 @@ export async function findRoleById(roleId:number):Promise<Role>{
     try{
         
         client = await connectionPool.connect();
-        console.log("the ::",roleId)
+        //console.log("the ::",roleId)
         let query = `select * from roles where role_id = $1;`;
         let result = await client.query(query,[roleId]);
         

@@ -5,9 +5,9 @@ import { ReimbursementStatus } from "../models/reimbursementStatus";
 import { ReimbursementType } from "../models/reimbursementType";
 import { findUserByIdService } from "../services/user.service";
 import { findReimbursementTypeByIdService } from "../services/reimbursementType.service";
-import { findReimbursementStatusByIdService } from "../services/reimbursementStatusService";
+import { findReimbursementStatusByIdService } from "../services/reimbursementStatus.service";
 import { connectionPool } from "./indexDao";
-import {PoolClient} from 'pg'
+import * as PoolClient from 'pg'
 import ReimbusementError from "../util/ReimbursementError";
 
 
@@ -42,14 +42,15 @@ async function sqlReimbursementtojsReimbursement(res:dtoReimbursement):Promise<R
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Find reimbursement by id  :: Caution:this method use to many connection to the database,use view by id::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-export async function findAllReimbursementById(reimbursementId:number):Promise<Reimbursement>{
+export async function findReimbursementById(reimbursementId:number){
     
     let client:PoolClient;
     try{
         client = await connectionPool.connect();
-        let query = 'select * from reimburstments where reimbursement_id =  '
+        let query = 'select * from reimbursements where reimbursement_id = $1 '
         let result= await client.query(query,[reimbursementId])
-        return sqlReimbursementtojsReimbursement(result.rows[0])
+        //console.log(result.rows[0]);
+        return result.rows[0];
     }catch(err){
         //console.log(err.message)
         throw new ReimbusementError(500, 'Internal error reimbursement by id failed');
@@ -72,7 +73,7 @@ export async function createReimbursement(reimburstmentDto:dtoReimbursement){
         let result = await client.query(query,[reimburstmentDto.author,reimburstmentDto.amount,reimburstmentDto.description,reimburstmentDto.reim_type_id]);
          query = `select * from reimbursements_view where reimbursement_id= $1;`;
          result = await client.query(query,[result.rows[0].reimbursement_id]);
-        console.log('the result is ::',result.rows[0])
+        //console.log('the result is ::',result.rows[0])
         return result.rows[0];
 
     }catch(err){
@@ -205,7 +206,7 @@ export async function findReimburstmentByPage(pageSize,start){
         client = await connectionPool.connect();
         let query = 'select * from reimbursements_view order by reimbursement_id limit $1 offset $2'
         let result= await client.query(query,[pageSize,start])
-        console.log(query,pageSize,start)
+        //console.log(query,pageSize,start)
         return result.rows;
     }catch(err){
         //console.log(errr.message)

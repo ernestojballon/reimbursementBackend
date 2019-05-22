@@ -1,6 +1,5 @@
 
-
-const jwt = require('jsonwebtoken');
+import * as jwt from 'jsonwebtoken'
 import {jwtkey} from '../config'; 
 
 export async function authenticateMiddleware(req, res, next) {

@@ -152,7 +152,7 @@ export async function createUser(userdto: dtoUser): Promise<User> {
       userdto.email,
       userdto.role_id
     ]);
-    console.log(result.rows[0].user_id)
+    //console.log(result.rows[0].user_id)
     return await findUserById(result.rows[0].user_id); 
   } catch (err) {
     let message = "Error creating user, " + err.message || " ";

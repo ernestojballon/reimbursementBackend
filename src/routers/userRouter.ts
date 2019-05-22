@@ -7,19 +7,20 @@ import { dtoUser } from '../dao/models/DTO';
 import { asyncHandler } from '../util/asyncHandler';
 import ReimbusementError from '../util/ReimbursementError';
 import * as bcrypt from "bcryptjs";
+import { salt } from '../config';
 
 
 export const userRouter = express.Router();
 
 //Base path::   /users   from   index.ts
-
-
-
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Find Users
-// URL /users 
-// Method: GET
-// Allowed Roles finance-manager
-// Response:User
+// GET
+// Url: http://127.0.0.1:9050/api/users
+//
+//              HEADER
+// authorization         Beared [token]
+//
 
 userRouter.get('/',[authorizationMiddleware(['admin','manager']),asyncHandler(async (req,res)=>{
     let users:User[] = await findAllUsersService();
@@ -27,12 +28,18 @@ userRouter.get('/',[authorizationMiddleware(['admin','manager']),asyncHandler(as
     res.json(users);
     
 })]);
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Find Users By Id
-// URL /users/:id
-// Method: GET
-// Allowed Roles finance-manager or if the id provided matches the id of the current user
-// Response:User
+// GET
+// Url: http://127.0.0.1:9050/api/users/[user Id]
+//
+//              HEADER
+// authorization         Beared [token]
+//
+
 userRouter.get('/:userId',[authorizationMiddleware(['admin','manager','employee']),asyncHandler(async (req,res)=>{
     //TO DO : Allowed Roles finance-manager or if 
     //        the id provided matches the id of the current user
@@ -45,18 +52,29 @@ userRouter.get('/:userId',[authorizationMiddleware(['admin','manager','employee'
     res.json(user);
    
 })]);
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Update User
-// URL /users
-// Method: PATCH
-// Allowed Roles admin
-// Request The userId must be presen as well as all fields to 
-//    update, any field left undefined will not be updated.:User
-// Response:User
-
+// PATCH
+// Url: http://127.0.0.1:9050/api/users/[user Id]
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           Body
+// 
+// {
+//     "userName": "joesb",
+//     "firstName": "joseph",
+//     "lastName": "beldnesr",
+//     "email": "beldsner@gmail.com",
+//     "role":  2
+// }
 userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (req,res)=>{
     const userdto:dtoUser = {
-        user_id :  req.body.id, // primary key
+        user_id : req.params.id, // primary key
         username : req.body.userName  ,// not null, unique
         firstname : req.body.firstName  , // not null
         password: req.body.password || 'hashed',
@@ -64,6 +82,7 @@ userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (
         email : req.body.email   ,// not null
         role_id : req.body.role   // not null
     };
+    console.log(userdto)
     for (let key in userdto){
         if(!userdto[key]){
             throw new ReimbusementError(400,"Please insert all fields in the correct way");
@@ -76,19 +95,39 @@ userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (
 }
 
 )]);
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// Create User
+// POST
+// Url: http://127.0.0.1:9050/api/users/
+//
+//              HEADER
+// authorization         Beared [token]
+//
+//           Body
+// 
+//  {
+//     "userName": "admin",
+//     "password": "pass",
+//     "firstName": "admin",
+//     "lastName": "admin",
+//     "email": "finava@gmail.com",
+//     "role":  1
+// }
 userRouter.post('/',[authorizationMiddleware(['admin']),asyncHandler(async (req,res)=>{
-    console.log(req.body.password,)
-    console.log('authorized:',bcrypt.compareSync(req.body.password,"$2a$08$IVkWEPKnP9HNTVsfgwDaJu7Aa/WiYw4WH1eHISIpjycRJSlj49O2W"));
+   
     const userdto:dtoUser = {
         user_id : 0,
         username : req.body.userName  ,// not null, unique
         firstname : req.body.firstName  , // not null
-        password: bcrypt.hashSync(req.body.password,process.env['API_SALT']),
+        password: bcrypt.hashSync(req.body.password,salt),
         lastname : req.body.lastName  , // not null
         email : req.body.email   ,// not null
         role_id : req.body.role   // not null
     };
+    
     if(
         !userdto.username && 
         !userdto.firstname && 
@@ -106,7 +145,7 @@ userRouter.post('/',[authorizationMiddleware(['admin']),asyncHandler(async (req,
 }
 
 )]);
-
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
