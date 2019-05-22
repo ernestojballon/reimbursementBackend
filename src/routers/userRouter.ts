@@ -41,8 +41,6 @@ userRouter.get('/',[authorizationMiddleware(['admin','manager']),asyncHandler(as
 //
 
 userRouter.get('/:userId',[authorizationMiddleware(['admin','manager','employee']),asyncHandler(async (req,res)=>{
-    //TO DO : Allowed Roles finance-manager or if 
-    //        the id provided matches the id of the current user
     let id = +req.params.userId;
     if (req.userRole === "employee" && req.userId != id) {
       throw new ReimbusementError(400,`User is not authorized to see other users`);
@@ -74,13 +72,13 @@ userRouter.get('/:userId',[authorizationMiddleware(['admin','manager','employee'
 // }
 userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (req,res)=>{
     const userdto:dtoUser = {
-        user_id : req.params.id, // primary key
-        username : req.body.userName  ,// not null, unique
-        firstname : req.body.firstName  , // not null
+        user_id : req.params.id, 
+        username : req.body.userName  ,
+        firstname : req.body.firstName  , 
         password: req.body.password || 'hashed',
-        lastname : req.body.lastName  , // not null
-        email : req.body.email   ,// not null
-        role_id : req.body.role   // not null
+        lastname : req.body.lastName  , 
+        email : req.body.email ,
+        role_id : req.body.role   
     };
     console.log(userdto)
     for (let key in userdto){
@@ -120,12 +118,12 @@ userRouter.post('/',[authorizationMiddleware(['admin']),asyncHandler(async (req,
    
     const userdto:dtoUser = {
         user_id : 0,
-        username : req.body.userName  ,// not null, unique
-        firstname : req.body.firstName  , // not null
+        username : req.body.userName  ,
+        firstname : req.body.firstName  , 
         password: bcrypt.hashSync(req.body.password,salt),
-        lastname : req.body.lastName  , // not null
-        email : req.body.email   ,// not null
-        role_id : req.body.role   // not null
+        lastname : req.body.lastName  , 
+        email : req.body.email   ,
+        role_id : req.body.role   
     };
     
     if(

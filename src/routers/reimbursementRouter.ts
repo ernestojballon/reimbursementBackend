@@ -133,14 +133,14 @@ reimbursementRouter.patch("/", [
   asyncHandler(async (req, res) => {
     const reimDto: dtoReimbursement = {
       reimbursement_id: req.body.reimbursement_id,
-      author: req.body.author_id, // foreign key -> User, not null
+      author: req.body.author_id, 
       amount: req.body.amount,
-      submitted_date: req.body.submitted_date, // not null
-      resolve_date: req.body.resolve_date, // not null
+      submitted_date: req.body.submitted_date, 
+      resolve_date: req.body.resolve_date, 
       description: req.body.description,
-      resolver: req.userId , // foreign key -> User
-      status_id: req.body.status_id, // not null
-      reim_type_id: req.body.type_id // foreign key -> ReimbursementType
+      resolver: req.userId , 
+      status_id: req.body.status_id, 
+      reim_type_id: req.body.type_id 
     };
     console.log(reimDto);
     for (let key in reimDto) {
