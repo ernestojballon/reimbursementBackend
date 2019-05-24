@@ -1,5 +1,5 @@
 import { findAllUsers, findUserById, findUserByUsernameAndPassword, updateUser, createUser } from "../dao/user.dao";
-import { findRolByIdService } from "./role.service";
+
 import { User } from "../models/user";
 import { dtoUser } from "../dao/models/DTO";
 

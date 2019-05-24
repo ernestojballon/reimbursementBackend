@@ -2,7 +2,7 @@ import * as express from 'express'
 import { authorizationMiddleware } from '../middleware/authorization.middleware';
 import { User } from '../models/user';
 import { findAllUsersService, findUserByIdService, updateUserService,createUserService } from '../services/user.service';
-import { findRolByIdService } from '../services/role.service';
+
 import { dtoUser } from '../dao/models/DTO';
 import { asyncHandler } from '../util/asyncHandler';
 import ReimbusementError from '../util/ReimbursementError';

@@ -1,19 +1,18 @@
-import * as express from "express";
+import express from "express";
 import { authRouter } from "./routers/authRouter";
 import bodyParser = require("body-parser");
 import { authenticateMiddleware } from "./middleware/authentication.middleware";
-import { authorizationMiddleware } from "./middleware/authorization.middleware";
 import { userRouter } from "./routers/userRouter";
 import { reimbursementRouter } from "./routers/reimbursementRouter";
-import * as fileUpload from "express-fileupload"
+import fileUpload from "express-fileupload"
 export const jwtkey  = process.env['SUPER_SECRET_CODE']
-
-
+//import {corsFilter} from './middleware/cors-middleware'
+import cors = require('cors');
 const app = express();
 
 
 
-app.use(fileUpload());
+
 
 
 app.use(bodyParser.json())
@@ -23,11 +22,15 @@ app.use(bodyParser.json())
 //     "username": "username",
 //     "password": "password"
 //  }
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated
 app.use('',authenticateMiddleware)
-
+app.use(fileUpload());
 //redirect to usersRouter
 app.use('/api/users',userRouter);
 

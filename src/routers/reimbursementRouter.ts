@@ -1,6 +1,6 @@
 import express = require("express");
 import { authorizationMiddleware } from "../middleware/authorization.middleware";
-import { Reimbursement } from "../models/reimbursement";
+
 import {
   findReimbursementViewByStatusService,
   findReimbursementViewByUserService,
@@ -11,7 +11,7 @@ import {
 import { asyncHandler } from "../util/asyncHandler";
 import { dtoReimbursement } from "../dao/models/DTO";
 import ReimbusementError from "../util/ReimbursementError";
-import { findReimburstmentByPage, findReimbursementById } from "../dao/reimbursement.dao";
+import { findReimburstmentByPage } from "../dao/reimbursement.dao";
 import { serverNode } from "../config";
 import * as fs from 'fs'
 import { insertPhotoService } from "../services/photo.service";

@@ -1,11 +1,5 @@
-import { Reimbursement } from "../models/reimbursement";
+
 import { dtoReimbursement } from "./models/DTO";
-import { User } from "../models/user";
-import { ReimbursementStatus } from "../models/reimbursementStatus";
-import { ReimbursementType } from "../models/reimbursementType";
-import { findUserByIdService } from "../services/user.service";
-import { findReimbursementTypeByIdService } from "../services/reimbursementType.service";
-import { findReimbursementStatusByIdService } from "../services/reimbursementStatus.service";
 import { connectionPool } from "./indexDao";
 import * as PoolClient from 'pg'
 import ReimbusementError from "../util/ReimbursementError";
@@ -14,31 +8,31 @@ import ReimbusementError from "../util/ReimbursementError";
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Parse (dtoReimburstment model) to --------> (Reimburstment model)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-async function sqlReimbursementtojsReimbursement(res:dtoReimbursement):Promise<Reimbursement>{
-    try{
-        let _author:User = await findUserByIdService(res.author)
-        let _resolver:User = await findUserByIdService(res.resolver)
-        let _status:ReimbursementStatus = await findReimbursementStatusByIdService(res.status_id);
-        let _type:ReimbursementType= await findReimbursementTypeByIdService(res.status_id);
-        let reimburstment:Reimbursement = {
-            id: res.reimbursement_id ,// primary key
-            author: _author,// foreign key -> User, not null
-            amount: res.amount ,// not null
-            dateSubmitted:res.submitted_date ,// not null
-            dateResolved:res.resolve_date || null  ,// not null
-            description: res.description ,// not null
-            resolver: _resolver  ,// foreign key -> User
-            status: _status ,// foreign ey -> ReimbursementStatus, not null
-            type: _type ,// foreign key -> ReimbursementType
+// async function sqlReimbursementtojsReimbursement(res:dtoReimbursement):Promise<Reimbursement>{
+//     try{
+//         let _author:User = await findUserByIdService(res.author)
+//         let _resolver:User = await findUserByIdService(res.resolver)
+//         let _status:ReimbursementStatus = await findReimbursementStatusByIdService(res.status_id);
+//         let _type:ReimbursementType= await findReimbursementTypeByIdService(res.status_id);
+//         let reimburstment:Reimbursement = {
+//             id: res.reimbursement_id ,// primary key
+//             author: _author,// foreign key -> User, not null
+//             amount: res.amount ,// not null
+//             dateSubmitted:res.submitted_date ,// not null
+//             dateResolved:res.resolve_date || null  ,// not null
+//             description: res.description ,// not null
+//             resolver: _resolver  ,// foreign key -> User
+//             status: _status ,// foreign ey -> ReimbursementStatus, not null
+//             type: _type ,// foreign key -> ReimbursementType
             
-        }
-        return reimburstment;
-    }catch(err){
-        //console.log(err.message)
-        throw new ReimbusementError(500, 'Internal error can not retrieve reimbursement');
-    }
+//         }
+//         return reimburstment;
+//     }catch(err){
+//         //console.log(err.message)
+//         throw new ReimbusementError(500, 'Internal error can not retrieve reimbursement');
+//     }
    
-}
+// }
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 // Find reimbursement by id  :: Caution:this method use to many connection to the database,use view by id::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

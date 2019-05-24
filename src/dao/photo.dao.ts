@@ -2,20 +2,18 @@
 
 import { connectionPool } from "./indexDao";
 import PoolClient from 'pg'
-import { Photo } from "../models/photo";
-import { dtoPhoto } from "./models/DTO";
 import ReimbusementError from "../util/ReimbursementError";
 
 
-function sqlRoletojsPhoto(res:dtoPhoto):Photo{
-    let role:Photo = {
-        id: res.photo_id,
-        url : res.url,
-        reimbursement: res.reimbursement_id
+// function sqlRoletojsPhoto(res:dtoPhoto):Photo{
+//     let role:Photo = {
+//         id: res.photo_id,
+//         url : res.url,
+//         reimbursement: res.reimbursement_id
 
-    }
-    return role
-}
+//     }
+//     return role
+// }
 export async function insertPhoto(url:string,reimId:number){
     let client:PoolClient;
     try{
