@@ -13,7 +13,10 @@ const app = express();
 
 app.use(bodyParser.json())
 
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    credentials: true
+}));
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated

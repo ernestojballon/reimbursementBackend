@@ -3,14 +3,16 @@ import * as jwt from 'jsonwebtoken'
 import {jwtkey} from '../config'; 
 
 export async function authenticateMiddleware(req, res, next) {
+    console.log('inside middleware')
     try {
+        
         const bearerHeader = req.headers['authorization'];
         if (bearerHeader) {
 
             const bearer = bearerHeader.split(' ');
             const bearerToken = bearer[1];
             req.token = bearerToken;
-
+            console.log(bearerToken)
             await jwt.verify(bearerToken, jwtkey, async (err, authData) => {
                 if (err) {// there is an error or the userdid is not in the token :( forbbidenn
                     throw err;
