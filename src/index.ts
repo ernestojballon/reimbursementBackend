@@ -11,11 +11,6 @@ export const jwtkey  = process.env['SUPER_SECRET_CODE']
 const app = express();
 
 
-
- 
-
-
-
 app.use(bodyParser.json())
 // login router gives the token with userId and userRol inside validated for 1 hour
 
