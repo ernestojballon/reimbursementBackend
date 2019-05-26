@@ -7,7 +7,7 @@ import { reimbursementRouter } from "./routers/reimbursementRouter";
 import fileUpload from "express-fileupload"
 export const jwtkey  = process.env['SUPER_SECRET_CODE']
 //import {corsFilter} from './middleware/cors-middleware'
-//import cors = require('cors');
+import cors = require('cors');
 const app = express();
 
 
@@ -18,10 +18,10 @@ app.use(bodyParser.json())
 //     "username": "username",
 //     "password": "password"
 //  }
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-//     credentials: true,
-// }));
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated
