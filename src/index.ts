@@ -18,7 +18,10 @@ app.use(bodyParser.json())
 //     "username": "username",
 //     "password": "password"
 //  }
-app.use(cors());
+app.use(cors({
+    origin: "http://127.0.0.1:5500",
+    credentials: true,
+}));
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated
