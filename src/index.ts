@@ -6,22 +6,13 @@ import { userRouter } from "./routers/userRouter";
 import { reimbursementRouter } from "./routers/reimbursementRouter";
 import fileUpload from "express-fileupload"
 export const jwtkey  = process.env['SUPER_SECRET_CODE']
-//import {corsFilter} from './middleware/cors-middleware'
 import cors = require('cors');
 const app = express();
 
 
 app.use(bodyParser.json())
-// login router gives the token with userId and userRol inside validated for 1 hour
 
-// {
-//     "username": "username",
-//     "password": "password"
-//  }
-app.use(cors({
-    origin: "http://127.0.0.1:5500",
-    credentials: true,
-}));
+app.use(cors());
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated
