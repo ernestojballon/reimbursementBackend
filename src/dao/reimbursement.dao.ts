@@ -83,8 +83,9 @@ export async function createReimbursement(reimburstmentDto:dtoReimbursement){
 export async function updateReimbursement(reimbursementDto:dtoReimbursement){
     let client:PoolClient;
     try{
-        
+        let date = new Date(Date.now());
         client = await connectionPool.connect();
+        reimbursementDto.resolve_date = date;
         let query = `
         UPDATE reimbursements
         SET
@@ -101,7 +102,7 @@ export async function updateReimbursement(reimbursementDto:dtoReimbursement){
             reimbursementDto.author,
             reimbursementDto.amount,
             reimbursementDto.submitted_date,
-            reimbursementDto.resolve_date,
+            reimbursementDto.resolve_date ,
             reimbursementDto.description,
             reimbursementDto.resolver,
             reimbursementDto.status_id,
@@ -191,7 +192,7 @@ export async function countAllReimbursements():Promise<number>{
     }
 }
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-// Find Reimbursement page with page seze and start point
+// Find Reimbursement page with page size and start point
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 export async function findReimburstmentByPage(pageSize,start){
     //TO DO:: Finish query ,basically all this method

@@ -136,7 +136,7 @@ reimbursementRouter.patch("/", [
       author: req.body.author_id, 
       amount: req.body.amount,
       submitted_date: req.body.submitted_date, 
-      resolve_date: req.body.resolve_date, 
+      resolve_date: req.body.resolve_date || ' ', 
       description: req.body.description,
       resolver: req.userId , 
       status_id: req.body.status_id, 
