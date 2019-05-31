@@ -59,7 +59,7 @@ reimbursementRouter.get("/author/userId/:userId", [
     if (id && typeof id === "number") {
       let reimbursements = await findReimbursementViewByUserService(id);
       if (typeof reimbursements[0] === "undefined") {
-        throw new ReimbusementError(400,"No content to show ");
+        throw new ReimbusementError(204, "No content to show ");
       }
       res.status(200);
       res.json(reimbursements);

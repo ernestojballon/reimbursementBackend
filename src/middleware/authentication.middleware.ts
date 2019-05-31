@@ -12,7 +12,7 @@ export async function authenticateMiddleware(req, res, next) {
             const bearer = bearerHeader.split(' ');
             const bearerToken = bearer[1];
             req.token = bearerToken;
-            console.log(bearerToken)
+            //console.log(bearerToken)
             await jwt.verify(bearerToken, jwtkey, async (err, authData) => {
                 if (err) {// there is an error or the userdid is not in the token :( forbbidenn
                     throw err;

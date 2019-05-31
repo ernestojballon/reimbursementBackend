@@ -80,7 +80,6 @@ userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (
         email : req.body.email ,
         role_id : req.body.role   
     };
-    console.log(userdto)
     for (let key in userdto){
         if(!userdto[key]){
             throw new ReimbusementError(400,"Please insert all fields in the correct way");
