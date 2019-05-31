@@ -59,7 +59,7 @@ reimbursementRouter.get("/author/userId/:userId", [
     if (id && typeof id === "number") {
       let reimbursements = await findReimbursementViewByUserService(id);
       if (typeof reimbursements[0] === "undefined") {
-        throw new ReimbusementError(204,"This message it's not showing because 206 code  no content XD ");
+        throw new ReimbusementError(201,"This message it's not showing because 206 code  no content XD ");
       }
       res.status(200);
       res.json(reimbursements);
