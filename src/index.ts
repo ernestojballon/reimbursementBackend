@@ -9,10 +9,12 @@ export const jwtkey  = process.env['SUPER_SECRET_CODE']
 import cors = require('cors');
 const app = express();
 app.use(bodyParser.json())
+
 app.use(cors({
     origin: ['*','http://localhost:3000'],
     credentials: true
 }));
+
 app.post('/api/login',authRouter)
 
 //retrict the access to any route of our domain if you are not authenticated
