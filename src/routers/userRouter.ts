@@ -1,7 +1,7 @@
 import * as express from 'express'
 import { authorizationMiddleware } from '../middleware/authorization.middleware';
 import { User } from '../models/user';
-import { findAllUsersService, findUserByIdService, updateUserService,createUserService } from '../services/user.service';
+import { findAllUsersService, findUserByIdService, updateUserService,createUserService, deleteUserService } from '../services/user.service';
 
 import { dtoUser } from '../dao/models/DTO';
 import { asyncHandler } from '../util/asyncHandler';
@@ -113,6 +113,8 @@ userRouter.patch('/:id',[authorizationMiddleware(['admin']),asyncHandler(async (
 //     "email": "finava@gmail.com",
 //     "role":  1
 // }
+
+
 userRouter.post('/',[authorizationMiddleware(['admin']),asyncHandler(async (req,res)=>{
    
     const userdto:dtoUser = {
@@ -143,7 +145,28 @@ userRouter.post('/',[authorizationMiddleware(['admin']),asyncHandler(async (req,
 
 )]);
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// Delete User
+userRouter.delete('/:userId',[authorizationMiddleware(['admin']),asyncHandler(async (req,res)=>{
+    let id = +req.params.userId;
+    
+    if(!id){
+            throw new ReimbusementError(400,"Please insert an id to delete from database");
+        }
+    
+    await deleteUserService(id);
+    res.status(200);
+    res.json({
+        id,
+        messsage:'user delete'
+    }); 
+   
+}
+
+)]);
 
 
 

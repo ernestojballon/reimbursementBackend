@@ -187,20 +187,17 @@ reimbursementRouter.get("/page", [
     if (!current || !pageCount || current > pageCount){ throw new ReimbusementError(400,"Database do not have that many records in the database")}
     let start = (current -1) * pageSize;
     let response = await findReimburstmentByPage(pageSize,start);
-    let before = [];
-    let after = [];  
+    let pages=[]; 
     for (let x=1;x<pageCount+1;x++){
-      if(x>current){
-        after.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
-      }
-      if(x<current){
-        before.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
-      }
+        pages.push(serverNode + req.baseUrl + '/page?page='+x+"&limit="+pageSize||0)
+      
     }
     let page = {
       result:response,
-      before: before,
-      after:  after
+      current,
+      pageCount,
+      pages,
+      
     } 
     res.status(200);
     res.json(page);

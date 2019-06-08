@@ -1,4 +1,4 @@
-import { findAllUsers, findUserById, findUserByUsernameAndPassword, updateUser, createUser } from "../dao/user.dao";
+import { findAllUsers, findUserById, findUserByUsernameAndPassword, updateUser, createUser, deleteUser } from "../dao/user.dao";
 
 import { User } from "../models/user";
 import { dtoUser } from "../dao/models/DTO";
@@ -40,3 +40,8 @@ export async function updateUserService(userdto:dtoUser):Promise<User>{
 export async function createUserService(userdto:dtoUser):Promise<User>{
     return await createUser(userdto);
 };
+
+
+export async function deleteUserService(id:number){
+    return await deleteUser(id);
+}

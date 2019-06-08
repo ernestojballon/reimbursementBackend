@@ -132,7 +132,7 @@ export async function updateUser(userdto: dtoUser): Promise<User> {
 }
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::
-// Update User
+// Create User
 //:::::::::::::::::::::::::::::::::::::::::::::::::
 export async function createUser(userdto: dtoUser): Promise<User> {
   let client: PoolClient;
@@ -156,6 +156,24 @@ export async function createUser(userdto: dtoUser): Promise<User> {
     return await findUserById(result.rows[0].user_id); 
   } catch (err) {
     let message = "Error creating user, " + err.message || " ";
+    throw new ReimbusementError(500, message);
+  } finally {
+    client && client.release();
+  }
+}
+//:::::::::::::::::::::::::::::::::::::::::::::::::
+// Delete User
+//:::::::::::::::::::::::::::::::::::::::::::::::::
+export async function deleteUser(id: number) {
+  console.log('this is the id::',id)
+  let client: PoolClient;
+  try {
+    client = await connectionPool.connect();
+    let query = `
+    DELETE from users where user_id=$1`;
+    return await client.query(query, [id]);
+  } catch (err) {
+    let message = "Error deleting user, " + err.message || " ";
     throw new ReimbusementError(500, message);
   } finally {
     client && client.release();
