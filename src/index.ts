@@ -11,7 +11,7 @@ const app = express();
 app.use(bodyParser.json())
 
 app.use(cors({
-    origin: ['*','http://localhost:3000','http://ernesto-react.s3-website.us-east-2.amazonaws.com'],
+    origin: ['*','http://ernesto-react.s3-website.us-east-2.amazonaws.com'],
     credentials: true
 })); 
 
